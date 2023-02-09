@@ -1,20 +1,23 @@
 #pragma once
 
-#include <cstddef>
 #include <assert.h>
-#include <memory>
+#include <cstring>
 
-#include <iostream>
+// #include <iostream>
 
 /// @brief A dynamic string for managing sequences of characters.
 class DynamicString
 {
 public:
     /// @brief Default constructor that creates an empty string.
-    DynamicString() 
+    DynamicString() : DynamicString("") { }
+
+    /// @brief Constructor that creates a string consisting of 
+    /// the specified characters.
+    /// @param value The character sequence to be put in the string.
+    DynamicString(const char* value)
     {
-        Reallocate(1);
-        characters[0] = '\0';
+        SetCharacters(value);
     }
 
     /// @brief Destroy the string instance.
@@ -26,17 +29,27 @@ public:
     /// @param character The character to be added to the string.
     void Add(char character)
     {
-        std::cout << "Adding: " << character << std::endl;
-
         if (length + 1 >= capacity)
             Reallocate(GROWTH_FACTOR * capacity);
 
+        // std::cout << character << " -> ";
+        // for (int i = 0; i < capacity; i++)
+        //     std::cout << (characters[i] == 0 ? '.' : characters[i]) << " ";
+        // std::cout << "(len = " << length << ")" << " (cap = " << capacity << ")" << std::endl;
         characters[length] = character;
         characters[length + 1] = '\0';
-
-        std::cout << "Length: " << length+1 << " / capacity: " << capacity << std::endl;
-        std::cout << characters[length] << std::endl;
         length++;
+    }
+
+    void Concatenate(const char* value)
+    {
+        size_t valueLength = strlen(value);
+        size_t newLength = length + valueLength;
+        if (newLength + 1>= capacity)
+            Reallocate(newLength + 1);
+
+        memcpy(characters + length, value, valueLength + 1);
+        length = newLength;
     }
 
     /// @brief Returns the number of characters within the string 
@@ -44,6 +57,10 @@ public:
     /// @return The number of characters within the string 
     /// without a null-terminating character.
     size_t Length() const { return length; }
+
+    /// @brief Returns the current capacity of the dynamic string.
+    /// @return The current capacity of the dynamic string.
+    size_t Capacity() const { return capacity; }
 
     /// @brief Returns const pointer to null-terminated contents of the string.
     /// @return Const pointer to null-terminated contents of the string.
@@ -69,16 +86,26 @@ public:
     }
 
 private:
+    /// @brief Assings the specified char sequence as the new data 
+    /// for the dynamic string. 
+    /// @param value The char sequence to be assigned.
+    void SetCharacters(const char* value)
+    {
+        length = strlen(value);
+        char* newCharacters = new char[length + 1];
+        memcpy(newCharacters, value ? value : "", (length + 1) * sizeof(char));
+        characters = newCharacters;
+        capacity = capacity < length + 1 ? length + 1 : capacity;
+    }
+
     /// @brief Allocates a new block of memory and moves all 
     /// the existing elements into this new block.
     /// @param newCapacity The capacity of the new block of memory.
     void Reallocate(size_t newCapacity)
     {
-        std::cout << "Reallocating !!!" << std::endl;
+        // std::cout << "Reallocating !!!" << std::endl;
         char* newCharacters = new char[newCapacity];
-        length = newCapacity < length ? newCapacity : length; 
-        // copying all the chars before the null-terminated character
-        memcpy(newCharacters, characters, length * sizeof(char));
+        memcpy(newCharacters, characters ? characters : "", (length + 1) * sizeof(char));
         delete[] characters;
         characters = newCharacters;
         capacity = newCapacity;
