@@ -71,6 +71,9 @@ Thumbs.db
 obj/
 bin/
 
+# CMake
+build/
+
 # Visual Studio Code
 .vscode/
 
