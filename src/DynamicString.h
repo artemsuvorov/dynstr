@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <cstring>
 
+// TODO: get rid of all of the useless comments
 // #include <iostream>
 
 /// @brief A dynamic string for managing sequences of characters.
@@ -48,7 +49,8 @@ public:
         if (newLength + 1>= capacity)
             Reallocate(newLength + 1);
 
-        memcpy(characters + length, value, valueLength + 1);
+        // memcpy(characters + length, value, valueLength + 1);
+        strcpy(characters + length, value);
         length = newLength;
     }
 
@@ -93,7 +95,8 @@ private:
     {
         length = strlen(value);
         char* newCharacters = new char[length + 1];
-        memcpy(newCharacters, value ? value : "", (length + 1) * sizeof(char));
+        // memcpy(newCharacters, value ? value : "", (length + 1) * sizeof(char));
+        strcpy(newCharacters, value);
         characters = newCharacters;
         capacity = capacity < length + 1 ? length + 1 : capacity;
     }
@@ -105,7 +108,8 @@ private:
     {
         // std::cout << "Reallocating !!!" << std::endl;
         char* newCharacters = new char[newCapacity];
-        memcpy(newCharacters, characters ? characters : "", (length + 1) * sizeof(char));
+        // memcpy(newCharacters, characters ? characters : "", (length + 1) * sizeof(char));
+        strcpy(newCharacters, characters);
         delete[] characters;
         characters = newCharacters;
         capacity = newCapacity;
