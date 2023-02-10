@@ -18,18 +18,23 @@ TEST(DynstrTest, AddsSingleCharacter)
 
     EXPECT_STREQ(string.Characters(), "A");
     EXPECT_EQ(string.Length(), 1);
-    EXPECT_EQ(string.Capacity(), 2);
+    EXPECT_EQ(string.Capacity(), 1);
 }
 
 TEST(DynstrTest, ReallocatesMemory)
 {
     DynamicString string;
+    size_t initialCapacity = string.Capacity();
+
     string.Add('A');
     string.Add('B');
+    size_t newCapacity = string.Capacity();
 
     EXPECT_STREQ(string.Characters(), "AB");
     EXPECT_EQ(string.Length(), 2);
-    EXPECT_EQ(string.Capacity(), 4);
+    EXPECT_EQ(string.Capacity(), 2);
+
+    EXPECT_GT(newCapacity, initialCapacity);
 }
 
 TEST(DynstrTest, CreateFromConstChar)
@@ -38,7 +43,7 @@ TEST(DynstrTest, CreateFromConstChar)
     
     EXPECT_STREQ(string.Characters(), "Hello");
     EXPECT_EQ(string.Length(), 5);
-    EXPECT_EQ(string.Capacity(), 6);
+    EXPECT_EQ(string.Capacity(), 5);
 }
 
 TEST(DynstrTest, ModifiesCharacter)
@@ -48,7 +53,89 @@ TEST(DynstrTest, ModifiesCharacter)
     
     EXPECT_STREQ(string.Characters(), "Hello");
     EXPECT_EQ(string.Length(), 5);
+    EXPECT_EQ(string.Capacity(), 5);
+}
+
+TEST(DynstrTest, StringCopies)
+{
+    DynamicString first = "Hello";
+    DynamicString second = first;
+
+    second[1] = 'a';
+    
+    EXPECT_STREQ(first.Characters(), "Hello");
+    EXPECT_EQ(first.Length(), 5);
+    EXPECT_EQ(first.Capacity(), 5);
+    
+    EXPECT_STREQ(second.Characters(), "Hallo");
+    EXPECT_EQ(second.Length(), 5);
+    EXPECT_EQ(second.Capacity(), 5);
+}
+
+TEST(DynstrMethodsTest, RemovesCharacter)
+{
+    DynamicString string = "He_&_llo!";
+    string.Remove(2);
+    string.Remove(2);
+    string.Remove(2);
+
+    EXPECT_STREQ(string.Characters(), "Hello!");
+    EXPECT_EQ(string.Length(), 6);
+    EXPECT_EQ(string.Capacity(), 9);
+}
+
+TEST(DynstrMethodsTest, Adds_And_Removes_And_Clears)
+{
+    DynamicString string;
+    string.Concatenate("He");
+    
+    EXPECT_STREQ(string.Characters(), "He");
+    EXPECT_EQ(string.Length(), 2);
+    EXPECT_EQ(string.Capacity(), 2);
+
+    string.Add('.');
+    
+    EXPECT_STREQ(string.Characters(), "He.");
+    EXPECT_EQ(string.Length(), 3);
+    EXPECT_EQ(string.Capacity(), 4);
+
+    string.Concatenate("llo");
+    
+    EXPECT_STREQ(string.Characters(), "He.llo");
+    EXPECT_EQ(string.Length(), 6);
     EXPECT_EQ(string.Capacity(), 6);
+
+    string.Remove(2);
+    
+    EXPECT_STREQ(string.Characters(), "Hello");
+    EXPECT_EQ(string.Length(), 5);
+    EXPECT_EQ(string.Capacity(), 6);
+    
+    string.Clear();
+    
+    EXPECT_STREQ(string.Characters(), "");
+    EXPECT_EQ(string.Length(), 0);
+    EXPECT_EQ(string.Capacity(), 6);
+}
+
+TEST(DynstrMethodsTest, InsertsCharacter)
+{
+    DynamicString string = "Hllo";
+    string.Insert(1, 'e');
+
+    EXPECT_STREQ(string.Characters(), "Hello");
+    EXPECT_EQ(string.Length(), 5);
+    EXPECT_EQ(string.Capacity(), 5);
+}
+
+TEST(DynstrMethodsTest, StringClears)
+{
+    DynamicString string = "Hello";
+    string.Clear();
+    
+    EXPECT_STREQ(string.Characters(), "");
+    EXPECT_EQ(string.Length(), 0);
+    EXPECT_EQ(string.Capacity(), 5);
 }
 
 TEST(DynstrConcatTest, ConcatEmptyStrings)
@@ -68,7 +155,7 @@ TEST(DynstrConcatTest, ConcatToEmptyString)
     
     EXPECT_STREQ(string.Characters(), "Hello");
     EXPECT_EQ(string.Length(), 5);
-    EXPECT_EQ(string.Capacity(), 6);
+    EXPECT_EQ(string.Capacity(), 5);
 }
 
 TEST(DynstrConcatTest, ConcatWithEmptyString)
@@ -78,7 +165,7 @@ TEST(DynstrConcatTest, ConcatWithEmptyString)
     
     EXPECT_STREQ(string.Characters(), "Hello");
     EXPECT_EQ(string.Length(), 5);
-    EXPECT_EQ(string.Capacity(), 6);
+    EXPECT_EQ(string.Capacity(), 5);
 }
 
 TEST(DynstrConcatTest, ConcatHelloWorld)
@@ -88,5 +175,5 @@ TEST(DynstrConcatTest, ConcatHelloWorld)
     
     EXPECT_STREQ(string.Characters(), "Hello, World!");
     EXPECT_EQ(string.Length(), 13);
-    EXPECT_EQ(string.Capacity(), 14);
+    EXPECT_EQ(string.Capacity(), 13);
 }

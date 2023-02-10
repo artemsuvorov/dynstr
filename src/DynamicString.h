@@ -4,7 +4,7 @@
 #include <cstring>
 
 // TODO: get rid of all of the useless comments
-// #include <iostream>
+#include <iostream>
 
 /// @brief A dynamic string for managing sequences of characters.
 class DynamicString
@@ -19,9 +19,19 @@ public:
     DynamicString(const char* value)
     {
         SetCharacters(value);
+        if (capacity == 0)
+            capacity = DEFAULT_CAPACITY;
     }
 
-    /// @brief Destroy the string instance.
+    /// @brief A copy constructor that creates a copy of another dynamic string.
+    /// @param other The string to be copied.
+    DynamicString(const DynamicString& other) 
+        : DynamicString(other.Characters()) 
+    {
+        std::cout << "Copied!" << std::endl;
+    }
+
+    /// @brief Destroy the dynamic string instance.
     ~DynamicString() { delete[] characters; }
 
 public:
@@ -30,7 +40,7 @@ public:
     /// @param character The character to be added to the string.
     void Add(char character)
     {
-        if (length + 1 >= capacity)
+        if (length + 1 > capacity)
             Reallocate(GROWTH_FACTOR * capacity);
 
         // std::cout << character << " -> ";
@@ -42,16 +52,58 @@ public:
         length++;
     }
 
+    /// @brief Concatenates the specified string to the dynamic string.
+    /// @param value The string to be concatenated.
     void Concatenate(const char* value)
     {
         size_t valueLength = strlen(value);
         size_t newLength = length + valueLength;
-        if (newLength + 1>= capacity)
-            Reallocate(newLength + 1);
+        // std::cout << length << " " << valueLength << " => " << (newLength + newLength % 2) << std::endl;
+        if (newLength > capacity)
+            // Reallocate(newLength + newLength % 2);
+            Reallocate(newLength);
 
         // memcpy(characters + length, value, valueLength + 1);
         strcpy(characters + length, value);
         length = newLength;
+    }
+
+    /// @brief Removes a character from the dynamic string at the specified index.
+    /// @param index The index of a character within the string to be removed. 
+    void Remove(size_t index)
+    {
+        assert(index < length);
+        strcpy(characters + index, characters + index + 1);
+        length--;
+    }
+
+    /// @brief Inserts a character at the specified index within the dynamic string.
+    /// @param index The index of a character to be inserted within the string.
+    /// @param character The character to be inserted.
+    void Insert(size_t index, char character)
+    {
+        assert(index < length);
+
+        if (length + 1 > capacity)
+            Reallocate(length + 1);
+        
+        // we use for loop instead of strcpy() to prevent overwriting 
+        // by copying characters in the reverse order
+        for (size_t i = length; i >= index + 1; i--)
+            characters[i] = characters[i-1];
+        characters[length + 1] = '\0';
+
+        characters[index] = character;
+        length++;
+    }
+
+    /// @brief Sets the dynamic string to the empty string,
+    /// clearing all its contents and setting its length to zero 
+    /// and capacity to one.
+    void Clear()
+    {
+        // we do not modify the capacity after calling the clear
+        SetCharacters("");
     }
 
     /// @brief Returns the number of characters within the string 
@@ -98,7 +150,7 @@ private:
         // memcpy(newCharacters, value ? value : "", (length + 1) * sizeof(char));
         strcpy(newCharacters, value);
         characters = newCharacters;
-        capacity = capacity < length + 1 ? length + 1 : capacity;
+        capacity = capacity < length ? length: capacity;
     }
 
     /// @brief Allocates a new block of memory and moves all 
@@ -107,7 +159,7 @@ private:
     void Reallocate(size_t newCapacity)
     {
         // std::cout << "Reallocating !!!" << std::endl;
-        char* newCharacters = new char[newCapacity];
+        char* newCharacters = new char[newCapacity + 1];
         // memcpy(newCharacters, characters ? characters : "", (length + 1) * sizeof(char));
         strcpy(newCharacters, characters);
         delete[] characters;
@@ -116,7 +168,8 @@ private:
     }
 
 private:
-    static const size_t GROWTH_FACTOR = 2;
+    static constexpr size_t DEFAULT_CAPACITY = 1;
+    static constexpr size_t GROWTH_FACTOR = 2;
 
     char* characters = nullptr;
     size_t length = 0;
