@@ -73,3 +73,18 @@ TEST(DynstrTest, StringCopies)
     EXPECT_EQ(second.Length(), 5);
     EXPECT_EQ(second.Capacity(), 5);
 }
+
+TEST(DynstrTest, StringMoves)
+{
+    DynamicString string = "Hello";
+    DynamicString other = std::move(string);
+
+    EXPECT_STREQ(other.Characters(), "Hello");
+    EXPECT_EQ(other.Length(), 5);
+    EXPECT_EQ(other.Capacity(), 5);
+
+    // expects string to become a hollow object
+    EXPECT_EQ(string.Characters(), nullptr);
+    EXPECT_EQ(string.Length(), 0);
+    EXPECT_EQ(string.Capacity(), 0);
+}

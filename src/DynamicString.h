@@ -21,19 +21,33 @@ public:
     DynamicString(const char* value)
     {
         SetCharacters(value);
+        // for the debug purposes
+        // std::cout << "Created!" << std::endl;
     }
 
     /// @brief A copy constructor that creates a copy of another dynamic string.
     /// @param other The string to be copied.
     DynamicString(const DynamicString& other) 
-        : DynamicString(other.Characters()) 
     {
+        SetCharacters(other.characters);
         // for the debug purposes
         // std::cout << "Copied!" << std::endl;
     }
 
+    /// @brief A move constructor that moves an rvalue object of the specified dynamic string.
+    /// @param other The string to be moved.
+    DynamicString(DynamicString&& other) noexcept
+    {
+        ShallowCopyFrom(std::move(other));
+    }
+
     /// @brief Destroy the dynamic string instance.
-    ~DynamicString() { delete[] characters; }
+    ~DynamicString() 
+    { 
+        delete[] characters;
+        // for the debug purposes
+        // std::cout << "Destroyed!" << std::endl;
+    }
 
 public:
     /// @brief Adds the specified character at the end of 
@@ -172,6 +186,21 @@ public:
         return characters[index];
     }
 
+    /// @brief Move assignment operator that moves the data from
+    /// another rvalue object of dynamic string to this instance;
+    /// @param other A dynamic string rvalue object to be moved.
+    /// @return A reference to the instance of this dynamic string modified.
+    DynamicString& operator=(DynamicString&& other) noexcept
+    {
+        if (this != &other)
+        {
+            delete[] characters;    
+            ShallowCopyFrom(std::move(other));
+        }
+
+        return *this;
+    }
+
 private:
     /// @brief Assings the specified char sequence as the new data 
     /// for the dynamic string. 
@@ -187,6 +216,25 @@ private:
 
         capacity = capacity > 0 ? capacity : DEFAULT_CAPACITY;
         capacity = capacity < length ? length : capacity;
+    }
+
+    /// @brief Moves all the data from another rvalue object of 
+    /// dynamic string to this instance and clears other dynamic string. 
+    /// @param other A dynamic string rvalue object to be moved.
+    void ShallowCopyFrom(DynamicString&& other)
+    {
+        // moving just a pointer and not the data itself
+        characters = other.characters;
+        length = other.length;
+        capacity = other.capacity;
+
+        // clearing the original string
+        other.characters = nullptr;
+        other.length = 0;
+        other.capacity = 0;
+
+        // for the debug purposes
+        // std::cout << "Moved!" << std::endl;
     }
 
     /// @brief Allocates a new block of memory and moves all 

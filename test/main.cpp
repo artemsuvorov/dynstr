@@ -3,6 +3,7 @@
 #include "TestDynamicString.cpp"
 #include "TestDynamicStringMethods.cpp"
 #include "TestDynamicStringConcat.cpp"
+#include "TestDynamicStringOperators.cpp"
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
