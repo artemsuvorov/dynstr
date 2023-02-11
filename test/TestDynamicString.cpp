@@ -199,6 +199,28 @@ TEST(DynstrMethodsTest, StringClears)
     EXPECT_EQ(string.Capacity(), 5);
 }
 
+TEST(DynstrMethodsTest, StringEquals)
+{
+    DynamicString string = "Hello";
+    DynamicString other = "Hello";
+    DynamicString copy = string;
+
+    EXPECT_TRUE(string.Equals("Hello"));
+    EXPECT_TRUE(string.Equals(string));
+    EXPECT_TRUE(string.Equals(other));
+    EXPECT_TRUE(string.Equals(copy));
+}
+
+TEST(DynstrMethodsTest, StringDoesntEqual)
+{
+    DynamicString string = "Hello";
+    DynamicString copy = string;
+    copy.Concatenate("World");
+
+    EXPECT_FALSE(string.Equals("!Hello"));
+    EXPECT_FALSE(copy.Equals(string));
+}
+
 TEST(DynstrConcatTest, ConcatEmptyStrings)
 {
     DynamicString string;

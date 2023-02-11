@@ -120,6 +120,24 @@ public:
         SetCharacters("");
     }
 
+    /// @brief Returns a value indicating whether the characters in this instance
+    /// are equal to a specified dynamic string.
+    /// @param other An object to compare with the dynamic string.
+    /// @return true if this instance and the specified string have equal char sequences.
+    bool Equals(const DynamicString& other) const
+    {
+        return Equals(other.characters);
+    }
+
+    /// @brief Returns a value indicating whether the characters in this instance 
+    /// are equal to the characters in a specified character sequence.
+    /// @param otherCharacters A character sequence to compare with the dynamic string.
+    /// @return true if this instance and the specified string have equal char sequences.
+    bool Equals(const char* otherCharacters) const
+    {
+        return strcmp(characters, otherCharacters) == 0;
+    }
+
     /// @brief Returns the number of characters within the string 
     /// without a null-terminating character.
     /// @return The number of characters within the string 
