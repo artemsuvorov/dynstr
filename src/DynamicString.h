@@ -64,8 +64,8 @@ public:
             // Reallocate(newLength + newLength % 2);
             Reallocate(newLength);
 
-        // memcpy(characters + length, value, valueLength + 1);
-        strcpy(characters + length, value);
+        //strcpy(characters + length, value);
+        memcpy(characters + length, value, (valueLength + 1) * sizeof(char));
         length = newLength;
     }
 
@@ -74,7 +74,8 @@ public:
     void Remove(size_t index)
     {
         assert(index < length);
-        strcpy(characters + index, characters + index + 1);
+        //strcpy(characters + index, characters + index + 1);
+        memcpy(characters + index, characters + index + 1, (length - index + 1) * sizeof(char));
         length--;
     }
 
@@ -180,8 +181,8 @@ private:
         length = strlen(value);
         char* newCharacters = new char[length + 1];
         
-        // memcpy(newCharacters, value ? value : "", (length + 1) * sizeof(char));
-        strcpy(newCharacters, value);
+        //strcpy(newCharacters, value);
+        memcpy(newCharacters, value, (length + 1) * sizeof(char));
         characters = newCharacters;
 
         capacity = capacity > 0 ? capacity : DEFAULT_CAPACITY;
@@ -197,8 +198,8 @@ private:
         newCapacity = newCapacity > 0 ? newCapacity : DEFAULT_CAPACITY;
         char* newCharacters = new char[newCapacity + 1];
         
-        // memcpy(newCharacters, characters ? characters : "", (length + 1) * sizeof(char));
-        strcpy(newCharacters, characters);
+        //strcpy(newCharacters, characters);
+        memcpy(newCharacters, characters, (length + 1) * sizeof(char));
         delete[] characters;
         
         characters = newCharacters;
