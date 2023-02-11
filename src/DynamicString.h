@@ -6,6 +6,8 @@
 // TODO: get rid of all of the useless comments
 #include <iostream>
 
+#define DEBUG
+
 /// @brief A dynamic string for managing sequences of characters.
 class DynamicString
 {
@@ -19,8 +21,6 @@ public:
     DynamicString(const char* value)
     {
         SetCharacters(value);
-        if (capacity == 0)
-            capacity = DEFAULT_CAPACITY;
     }
 
     /// @brief A copy constructor that creates a copy of another dynamic string.
@@ -28,7 +28,8 @@ public:
     DynamicString(const DynamicString& other) 
         : DynamicString(other.Characters()) 
     {
-        std::cout << "Copied!" << std::endl;
+        // for the debug purposes
+        // std::cout << "Copied!" << std::endl;
     }
 
     /// @brief Destroy the dynamic string instance.
@@ -97,6 +98,19 @@ public:
         length++;
     }
 
+    /// @brief Ensures that the capacity of the dynamic string is at least the 
+    /// specified value. If new capacity is greater than the current capacity, 
+    /// then the capacity is set to capacity; otherwise the capacity is unchanged.
+    /// @param newCapacity New capacity to be assigned.
+    /// @return New capacity of the dynamic string.
+    size_t Reserve(size_t newCapacity)
+    {
+        if (capacity < newCapacity)
+            Reallocate(newCapacity);
+
+        return capacity;
+    }
+
     /// @brief Sets the dynamic string to the empty string,
     /// clearing all its contents and setting its length to zero 
     /// and capacity to one.
@@ -147,10 +161,13 @@ private:
     {
         length = strlen(value);
         char* newCharacters = new char[length + 1];
+        
         // memcpy(newCharacters, value ? value : "", (length + 1) * sizeof(char));
         strcpy(newCharacters, value);
         characters = newCharacters;
-        capacity = capacity < length ? length: capacity;
+
+        capacity = capacity > 0 ? capacity : DEFAULT_CAPACITY;
+        capacity = capacity < length ? length : capacity;
     }
 
     /// @brief Allocates a new block of memory and moves all 
@@ -159,13 +176,26 @@ private:
     void Reallocate(size_t newCapacity)
     {
         // std::cout << "Reallocating !!!" << std::endl;
+        newCapacity = newCapacity > 0 ? newCapacity : DEFAULT_CAPACITY;
         char* newCharacters = new char[newCapacity + 1];
+        
         // memcpy(newCharacters, characters ? characters : "", (length + 1) * sizeof(char));
         strcpy(newCharacters, characters);
         delete[] characters;
+        
         characters = newCharacters;
         capacity = newCapacity;
     }
+
+#ifdef DEBUG
+private:
+    inline void PrintBuffer() const
+    {
+        for (int i = 0; i < capacity; i++)
+            std::cout << (characters[i] == 0 ? '.' : characters[i]) << " ";
+        std::cout << "(len = " << length << ")" << " (cap = " << capacity << ")" << std::endl;
+    }
+#endif
 
 private:
     static constexpr size_t DEFAULT_CAPACITY = 1;

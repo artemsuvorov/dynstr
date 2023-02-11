@@ -128,6 +128,67 @@ TEST(DynstrMethodsTest, InsertsCharacter)
     EXPECT_EQ(string.Capacity(), 5);
 }
 
+TEST(DynstrMethodsTest, WontReserveOnSmallCapacity)
+{
+    DynamicString string = "Hello";
+    string.Reserve(0);
+    
+    EXPECT_STREQ(string.Characters(), "Hello");
+    EXPECT_EQ(string.Length(), 5);
+    EXPECT_EQ(string.Capacity(), 5);
+
+    string.Reserve(3); // 3 < strlen("Hello")
+    
+    EXPECT_STREQ(string.Characters(), "Hello");
+    EXPECT_EQ(string.Length(), 5);
+    EXPECT_EQ(string.Capacity(), 5);
+
+    string.Reserve(5); 
+
+    // capacity is already 5, so no effect
+    EXPECT_STREQ(string.Characters(), "Hello");
+    EXPECT_EQ(string.Length(), 5);
+    EXPECT_EQ(string.Capacity(), 5);
+}
+
+TEST(DynstrMethodsTest, ReservesCapacity)
+{
+    DynamicString string = "Hello";
+    string.Reserve(10);
+    
+    EXPECT_STREQ(string.Characters(), "Hello");
+    EXPECT_EQ(string.Length(), 5);
+    EXPECT_EQ(string.Capacity(), 10);
+}
+
+TEST(DynstrMethodsTest, NoAllocationsAfterReserve)
+{
+    DynamicString string;
+    size_t expectedCapacity = string.Reserve(5);
+
+    string.Add('.');
+    string.Concatenate("Hi");
+    string.Add('!');
+
+    EXPECT_STREQ(string.Characters(), ".Hi!");
+    EXPECT_EQ(string.Length(), 4);
+    EXPECT_EQ(string.Capacity(), expectedCapacity);
+}
+
+TEST(DynstrMethodsTest, AllocatesAfterSmallReserve)
+{
+    DynamicString string;
+    string.Reserve(3);
+
+    string.Add('.');
+    string.Concatenate("Hi");
+    string.Add('!');
+
+    EXPECT_STREQ(string.Characters(), ".Hi!");
+    EXPECT_EQ(string.Length(), 4);
+    EXPECT_EQ(string.Capacity(), 6);
+}
+
 TEST(DynstrMethodsTest, StringClears)
 {
     DynamicString string = "Hello";
