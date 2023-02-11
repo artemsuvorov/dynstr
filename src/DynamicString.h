@@ -22,16 +22,14 @@ public:
     {
         SetCharacters(value);
         // for the debug purposes
-        // std::cout << "Created!" << std::endl;
+        std::cout << "Created!" << std::endl;
     }
 
     /// @brief A copy constructor that creates a copy of another dynamic string.
     /// @param other The string to be copied.
     DynamicString(const DynamicString& other) 
     {
-        SetCharacters(other.characters);
-        // for the debug purposes
-        // std::cout << "Copied!" << std::endl;
+        DeepCopyFrom(other);
     }
 
     /// @brief A move constructor that moves an rvalue object of the specified dynamic string.
@@ -46,7 +44,7 @@ public:
     { 
         delete[] characters;
         // for the debug purposes
-        // std::cout << "Destroyed!" << std::endl;
+        std::cout << "Destroyed!" << std::endl;
     }
 
 public:
@@ -186,6 +184,32 @@ public:
         return characters[index];
     }
 
+    /// @brief Assignment operator that assigns the contents of the 
+    /// dynamic string to the new specified character sequence.
+    /// Capacity will not change but will increase, if needed.
+    /// @param newValue The character sequence to be assigned.
+    /// @return A reference to the instance of this dynamic string modified.
+    DynamicString& operator=(const char* newValue)
+    {
+        SetCharacters(newValue);
+        return *this;
+    }
+
+    /// @brief Copy assignment operator that creates a copy of another 
+    /// dynamic string and deletes the previous data of this instance.
+    /// @param other The dynamic string to be copied.
+    /// @return A reference to the instance of this dynamic string modified.
+    DynamicString& operator=(const DynamicString& other)
+    {
+        if (this != &other)
+        {
+            delete[] characters;
+            DeepCopyFrom(other);
+        }
+
+        return *this;
+    }
+
     /// @brief Move assignment operator that moves the data from
     /// another rvalue object of dynamic string to this instance;
     /// @param other A dynamic string rvalue object to be moved.
@@ -218,6 +242,17 @@ private:
         capacity = capacity < length ? length : capacity;
     }
 
+    /// @brief Performs a deep copy of the specified dynamic string.
+    /// @param other The string to be deep copied.
+    void DeepCopyFrom(const DynamicString& other)
+    {
+        SetCharacters(other.characters);
+        length = other.length;
+        capacity = other.capacity;
+        // for the debug purposes
+        std::cout << "Copied!" << std::endl;
+    }
+
     /// @brief Moves all the data from another rvalue object of 
     /// dynamic string to this instance and clears other dynamic string. 
     /// @param other A dynamic string rvalue object to be moved.
@@ -234,7 +269,7 @@ private:
         other.capacity = 0;
 
         // for the debug purposes
-        // std::cout << "Moved!" << std::endl;
+        std::cout << "Moved!" << std::endl;
     }
 
     /// @brief Allocates a new block of memory and moves all 

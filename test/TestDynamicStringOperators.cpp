@@ -4,6 +4,25 @@
 
 #include "DynamicString.h"
 
+TEST(DynstrOperatorsTest, CopyAssignmentOperator)
+{
+    DynamicString apple = "Apple";
+    DynamicString banana = "Banana";
+
+    banana = apple;
+
+    // expect that references do not equal
+    EXPECT_NE(&apple, &banana);
+
+    EXPECT_STREQ(apple.Characters(), "Apple");
+    EXPECT_EQ(apple.Length(), 5);
+    EXPECT_EQ(apple.Capacity(), 5);
+    
+    EXPECT_STREQ(banana.Characters(), "Apple");
+    EXPECT_EQ(banana.Length(), 5);
+    EXPECT_EQ(banana.Capacity(), 5);
+}
+
 TEST(DynstrOperatorsTest, MoveAssignmentOperator)
 {
     DynamicString apple = "Apple";

@@ -65,6 +65,9 @@ TEST(DynstrTest, StringCopies)
 
     second[1] = 'a';
     
+    // expect that references do not equal
+    EXPECT_NE(&first, &second);
+
     EXPECT_STREQ(first.Characters(), "Hello");
     EXPECT_EQ(first.Length(), 5);
     EXPECT_EQ(first.Capacity(), 5);
