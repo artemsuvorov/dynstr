@@ -13,6 +13,25 @@ TEST(DynstrTest, IsEmptyOnInit)
     EXPECT_EQ(string.Capacity(), 1);
 }
 
+TEST(DynstrTest, CreatesStringOfCapacity)
+{
+    DynamicString string(10);
+    string.Concatenate("Hello");
+    
+    EXPECT_STREQ(string.Characters(), "Hello");
+    EXPECT_EQ(string.Length(), 5);
+    EXPECT_EQ(string.Capacity(), 10);
+}
+
+TEST(DynstrTest, CreatesEmptyString_WithDefaultCapacity_OnZeroCapacityIsPassed)
+{
+    DynamicString string(0uLL);
+    
+    EXPECT_STREQ(string.Characters(), "");
+    EXPECT_EQ(string.Length(), 0);
+    EXPECT_EQ(string.Capacity(), 1);
+}
+
 TEST(DynstrTest, AddsSingleCharacter)
 {
     DynamicString string;

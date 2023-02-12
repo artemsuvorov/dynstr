@@ -3,10 +3,11 @@
 #include <assert.h>
 #include <cstring>
 #include <utility>
-#include <ostream>
+#include <iosfwd>
 
 #define DEBUG
 
+// TODO: move all the definitions to the .cpp file
 // TODO: get rid of all of the useless comments
 #ifdef DEBUG
 #include <iostream>
@@ -18,6 +19,14 @@ class DynamicString
 public:
     /// @brief Default constructor that creates an empty string.
     DynamicString() : DynamicString("") { }
+
+    /// @brief Constructor that creates a dynamic string with the specified capacity.
+    /// If capacity is zero, the capacity will be set to the default capacity.
+    /// @param capacity The initial capacity of the dynamic string.
+    DynamicString(size_t capacity)
+    {
+        Reserve(capacity);
+    }
 
     /// @brief Constructor that creates a string consisting of 
     /// the specified characters.
@@ -51,15 +60,6 @@ public:
         #ifdef DEBUG
         std::cout << "Destroyed!" << std::endl;
         #endif
-    }
-
-private:
-    /// @brief Constructor that creates a dynamic string with the specified capacity.
-    /// If capacity is zero, the capacity will be set to the default capacity.
-    /// @param capacity The initial capacity of the dynamic string.
-    DynamicString(size_t capacity)
-    {
-        Reserve(capacity);
     }
 
 public:
@@ -138,7 +138,9 @@ public:
     /// @return New capacity of the dynamic string.
     size_t Reserve(size_t newCapacity)
     {
-        if (capacity < newCapacity)
+        if (capacity == 0 && newCapacity == 0)
+            Reallocate(DEFAULT_CAPACITY);
+        else if (capacity < newCapacity)
             Reallocate(newCapacity);
 
         return capacity;
@@ -309,12 +311,18 @@ private:
         #ifdef DEBUG
         std::cout << "Reallocating !!!" << std::endl;
         #endif
-        newCapacity = newCapacity > 0 ? newCapacity : DEFAULT_CAPACITY;
+        if (newCapacity == 0)
+            newCapacity = DEFAULT_CAPACITY;
+
         char* newCharacters = new char[newCapacity + 1];
         
         //strcpy(newCharacters, characters);
         if (characters)
             memcpy(newCharacters, characters, (length + 1) * sizeof(char));
+        else
+            // setting a null-terminating character at the start 
+            // to create an empty string ""
+            newCharacters[0] = '\0';
         delete[] characters;
         
         characters = newCharacters;
@@ -332,6 +340,7 @@ private:
 #endif
 
 private:
+    // TODO: mb make DefCap public and use it in tests ? upd readme also then
     static constexpr size_t DEFAULT_CAPACITY = 1;
     static constexpr size_t GROWTH_FACTOR = 2;
 
@@ -345,17 +354,6 @@ private:
 };
 
 // TODO: move the ops definitions to .cpp file without the 'inline' keyword
-
-/// @brief Pushes dynamic string to the output stream. 
-/// @param stream The output stream to accept the string.
-/// @param string The dynamic string to be pushed to the output stream.
-/// @return The output stream containing the dynamic string.
-inline std::ostream& operator<<(std::ostream& stream, const DynamicString& string)
-{
-    const char* characters = string.Characters();
-    stream << (characters ? characters : "");
-    return stream;
-}
 
 /// @brief Plus operator that concatenates dynamic string and a C-string 
 /// and returns the result.
@@ -393,4 +391,15 @@ inline DynamicString operator+(const DynamicString& first, const DynamicString& 
     result.Concatenate(first.Characters());
     result.Concatenate(second.Characters());
     return result;
+}
+
+/// @brief Pushes dynamic string to the output stream. 
+/// @param stream The output stream to accept the string.
+/// @param string The dynamic string to be pushed to the output stream.
+/// @return The output stream containing the dynamic string.
+inline std::ostream& operator<<(std::ostream& stream, const DynamicString& string)
+{
+    const char* characters = string.Characters();
+    stream << (characters ? characters : "");
+    return stream;
 }
