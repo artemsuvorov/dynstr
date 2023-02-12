@@ -22,7 +22,7 @@ DynamicString::DynamicString(size_t capacity)
     Reserve(capacity);
 }
 
-DynamicString::DynamicString(const char *value)
+DynamicString::DynamicString(const char* value)
 {
     SetCharacters(value);
     #ifdef DEBUG
@@ -30,12 +30,12 @@ DynamicString::DynamicString(const char *value)
     #endif
 }
 
-DynamicString::DynamicString(const DynamicString &other)
+DynamicString::DynamicString(const DynamicString& other)
 {
     DeepCopyFrom(other);
 }
 
-DynamicString::DynamicString(DynamicString &&other) noexcept
+DynamicString::DynamicString(DynamicString&& other) noexcept
 {
     ShallowCopyFrom(std::move(other));
 }
@@ -158,6 +158,11 @@ DynamicString& DynamicString::operator=(DynamicString&& other) noexcept
     }
 
     return *this;
+}
+
+bool DynamicString::operator==(const DynamicString& other) const
+{
+    return Equals(other);
 }
 
 void DynamicString::SetCharacters(const char* value)

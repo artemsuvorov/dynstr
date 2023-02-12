@@ -137,6 +137,18 @@ public:
     /// @return A reference to the instance of this dynamic string modified.
     DynamicString& operator=(DynamicString&& other) noexcept;
 
+    /// @brief Equality operator to check if this instance of dynamic string
+    /// equals to another dynamic string.
+    /// @param other The other dynamic string to be compared with this instance.
+    /// @return True if strings equal, otherwise false.
+    bool operator==(const DynamicString& other) const;
+
+    /// @brief Inequality operator to check if this instance of dynamic string
+    /// does not equal to another dynamic string.
+    /// @param other The other dynamic string to be compared with this instance.
+    /// @return True if strings do not equal, otherwise false.
+    bool operator!=(const DynamicString& other) const { return !(*this == other); }
+
 private:
     /// @brief Assings the specified char sequence as the new data 
     /// for the dynamic string. 
