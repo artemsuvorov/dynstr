@@ -4,6 +4,11 @@ set(BINARY test-${CMAKE_PROJECT_NAME})
 set(
     SOURCES
     main.cpp
+    TestDynamicString.h
+    TestDynamicStringConcat.h
+    TestDynamicStringMethods.h
+    TestDynamicStringOperators.h
+    TestDynamicStringSort.h
 )
 
 add_executable(

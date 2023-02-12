@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
 
-#include "TestDynamicString.cpp"
-#include "TestDynamicStringMethods.cpp"
-#include "TestDynamicStringConcat.cpp"
-#include "TestDynamicStringOperators.cpp"
+#include "TestDynamicString.h"
+#include "TestDynamicStringMethods.h"
+#include "TestDynamicStringConcat.h"
+#include "TestDynamicStringOperators.h"
 
-#include "TestDynamicStringSort.cpp"
+#include "TestDynamicStringSort.h"
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
