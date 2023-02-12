@@ -1,20 +1,5 @@
 #include "DynamicString.h"
 
-// #define DEBUG
-
-#ifdef DEBUG
-#include <iostream>
-#endif
-
-#ifdef DEBUG
-inline void PrintBuffer() const
-{
-    for (int i = 0; i < capacity; i++)
-        std::cout << (characters[i] == 0 ? '.' : characters[i]) << " ";
-    std::cout << "(len = " << length << ")" << " (cap = " << capacity << ")" << std::endl;
-}
-#endif
-
 DynamicString::DynamicString() : DynamicString("") { }
 
 DynamicString::DynamicString(size_t capacity)
@@ -25,9 +10,6 @@ DynamicString::DynamicString(size_t capacity)
 DynamicString::DynamicString(const char* value)
 {
     SetCharacters(value);
-    #ifdef DEBUG
-    std::cout << "Created!" << std::endl;
-    #endif
 }
 
 DynamicString::DynamicString(const DynamicString& other)
@@ -43,9 +25,6 @@ DynamicString::DynamicString(DynamicString&& other) noexcept
 DynamicString::~DynamicString()
 {
     delete[] characters;
-    #ifdef DEBUG
-    std::cout << "Destroyed!" << std::endl;
-    #endif
 }
 
 void DynamicString::Add(char character)
@@ -189,9 +168,6 @@ void DynamicString::DeepCopyFrom(const DynamicString& other)
     SetCharacters(other.characters);
     length = other.length;
     capacity = other.capacity;
-    #ifdef DEBUG
-    std::cout << "Copied!" << std::endl;
-    #endif
 }
 
 void DynamicString::ShallowCopyFrom(DynamicString&& other)
@@ -205,18 +181,10 @@ void DynamicString::ShallowCopyFrom(DynamicString&& other)
     other.characters = nullptr;
     other.length = 0;
     other.capacity = 0;
-
-    // for the debug purposes
-    #ifdef DEBUG
-    std::cout << "Moved!" << std::endl;
-    #endif
 }
 
 void DynamicString::Reallocate(size_t newCapacity)
 {
-    #ifdef DEBUG
-    std::cout << "Reallocating !!!" << std::endl;
-    #endif
     if (newCapacity == 0)
         newCapacity = DEFAULT_CAPACITY;
 
