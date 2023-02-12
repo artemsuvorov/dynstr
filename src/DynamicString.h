@@ -2,10 +2,10 @@
 
 #include <assert.h>
 #include <cstring>
-#include <utility>
-#include <iosfwd>
+#include <istream>
+#include <ostream>
 
-#define DEBUG
+// #define DEBUG
 
 // TODO: move all the definitions to the .cpp file
 // TODO: get rid of all of the useless comments
@@ -347,10 +347,6 @@ private:
     char* characters = nullptr;
     size_t length = 0;
     size_t capacity = 0;
-
-    friend DynamicString operator+(const DynamicString& string, const char* value);
-    friend DynamicString operator+(const char* value, const DynamicString& string);
-    friend DynamicString operator+(const DynamicString& first, const DynamicString& second);
 };
 
 // TODO: move the ops definitions to .cpp file without the 'inline' keyword
@@ -401,5 +397,21 @@ inline std::ostream& operator<<(std::ostream& stream, const DynamicString& strin
 {
     const char* characters = string.Characters();
     stream << (characters ? characters : "");
+    return stream;
+}
+
+/// @brief From an input stream reads the string char by char 
+/// while can or new-line character is not found.
+/// @param stream The input stream to read from.
+/// @param string The string to be assigned to the read value.
+/// @return The input stream.
+inline std::istream& operator>>(std::istream& stream, DynamicString& string)
+{
+    char character;
+    while (stream.get(character) && !stream.eof())
+    {
+        if (character == '\n') break;
+        string.Add(character);
+    }
     return stream;
 }
