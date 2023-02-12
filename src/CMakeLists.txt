@@ -5,6 +5,8 @@ set(
     main.cpp
     DynamicString.h
     DynamicString.cpp
+    DynamicStringIterator.h
+    DynamicStringComparator.h
 )
 
 add_executable(

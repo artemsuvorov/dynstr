@@ -5,6 +5,8 @@
 #include <istream>
 #include <ostream>
 
+#include "DynamicStringIterator.h"
+
 // #define DEBUG
 
 // TODO: move all the definitions to the .cpp file
@@ -16,6 +18,9 @@
 /// @brief A dynamic string for managing sequences of characters.
 class DynamicString
 {
+public:
+    using Iterator = CharIterator;
+
 public:
     /// @brief Default constructor that creates an empty string.
     DynamicString() : DynamicString("") { }
@@ -186,6 +191,24 @@ public:
     /// @brief Returns const pointer to null-terminated contents of the string.
     /// @return Const pointer to null-terminated contents of the string.
     const char* Characters() const { return characters; }
+
+    /// @brief Returns a read/write iterator that points to the first
+    /// character in the dynamic string.
+    /// @return A read/write iterator that points to the first
+    /// character in the dynamic string.
+    Iterator begin() const
+    {
+        return Iterator(characters);
+    }
+
+    /// @brief Returns a read/write iterator that points one past the
+    /// last character in the dynamic string.
+    /// @return A read/write iterator that points one past the
+    /// last character in the dynamic string.
+    Iterator end() const
+    {
+        return Iterator(characters + length);
+    }
 
 public:
     /// @brief Returns a character of a string at the specified index.
