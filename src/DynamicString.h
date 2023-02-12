@@ -2,11 +2,15 @@
 
 #include <assert.h>
 #include <cstring>
-
-// TODO: get rid of all of the useless comments
-#include <iostream>
+#include <utility>
+#include <ostream>
 
 #define DEBUG
+
+// TODO: get rid of all of the useless comments
+#ifdef DEBUG
+#include <iostream>
+#endif
 
 /// @brief A dynamic string for managing sequences of characters.
 class DynamicString
@@ -21,8 +25,9 @@ public:
     DynamicString(const char* value)
     {
         SetCharacters(value);
-        // for the debug purposes
+        #ifdef DEBUG
         std::cout << "Created!" << std::endl;
+        #endif
     }
 
     /// @brief A copy constructor that creates a copy of another dynamic string.
@@ -43,8 +48,18 @@ public:
     ~DynamicString() 
     { 
         delete[] characters;
-        // for the debug purposes
+        #ifdef DEBUG
         std::cout << "Destroyed!" << std::endl;
+        #endif
+    }
+
+private:
+    /// @brief Constructor that creates a dynamic string with the specified capacity.
+    /// If capacity is zero, the capacity will be set to the default capacity.
+    /// @param capacity The initial capacity of the dynamic string.
+    DynamicString(size_t capacity)
+    {
+        Reserve(capacity);
     }
 
 public:
@@ -69,6 +84,8 @@ public:
     /// @param value The string to be concatenated.
     void Concatenate(const char* value)
     {
+        if (!value) return;
+
         size_t valueLength = strlen(value);
         size_t newLength = length + valueLength;
         // std::cout << length << " " << valueLength << " => " << (newLength + newLength % 2) << std::endl;
@@ -86,6 +103,8 @@ public:
     void Remove(size_t index)
     {
         assert(index < length);
+        assert(characters != nullptr);
+
         //strcpy(characters + index, characters + index + 1);
         memcpy(characters + index, characters + index + 1, (length - index + 1) * sizeof(char));
         length--;
@@ -97,6 +116,7 @@ public:
     void Insert(size_t index, char character)
     {
         assert(index < length);
+        assert(characters != nullptr);
 
         if (length + 1 > capacity)
             Reallocate(length + 1);
@@ -231,6 +251,12 @@ private:
     /// @param value The char sequence to be assigned.
     void SetCharacters(const char* value)
     {
+        if (!value)
+        {
+            characters = nullptr;
+            length = 0;
+        }
+
         length = strlen(value);
         char* newCharacters = new char[length + 1];
         
@@ -249,8 +275,9 @@ private:
         SetCharacters(other.characters);
         length = other.length;
         capacity = other.capacity;
-        // for the debug purposes
+        #ifdef DEBUG
         std::cout << "Copied!" << std::endl;
+        #endif
     }
 
     /// @brief Moves all the data from another rvalue object of 
@@ -269,7 +296,9 @@ private:
         other.capacity = 0;
 
         // for the debug purposes
+        #ifdef DEBUG
         std::cout << "Moved!" << std::endl;
+        #endif
     }
 
     /// @brief Allocates a new block of memory and moves all 
@@ -277,12 +306,15 @@ private:
     /// @param newCapacity The capacity of the new block of memory.
     void Reallocate(size_t newCapacity)
     {
-        // std::cout << "Reallocating !!!" << std::endl;
+        #ifdef DEBUG
+        std::cout << "Reallocating !!!" << std::endl;
+        #endif
         newCapacity = newCapacity > 0 ? newCapacity : DEFAULT_CAPACITY;
         char* newCharacters = new char[newCapacity + 1];
         
         //strcpy(newCharacters, characters);
-        memcpy(newCharacters, characters, (length + 1) * sizeof(char));
+        if (characters)
+            memcpy(newCharacters, characters, (length + 1) * sizeof(char));
         delete[] characters;
         
         characters = newCharacters;
@@ -306,4 +338,59 @@ private:
     char* characters = nullptr;
     size_t length = 0;
     size_t capacity = 0;
+
+    friend DynamicString operator+(const DynamicString& string, const char* value);
+    friend DynamicString operator+(const char* value, const DynamicString& string);
+    friend DynamicString operator+(const DynamicString& first, const DynamicString& second);
 };
+
+// TODO: move the ops definitions to .cpp file without the 'inline' keyword
+
+/// @brief Pushes dynamic string to the output stream. 
+/// @param stream The output stream to accept the string.
+/// @param string The dynamic string to be pushed to the output stream.
+/// @return The output stream containing the dynamic string.
+inline std::ostream& operator<<(std::ostream& stream, const DynamicString& string)
+{
+    const char* characters = string.Characters();
+    stream << (characters ? characters : "");
+    return stream;
+}
+
+/// @brief Plus operator that concatenates dynamic string and a C-string 
+/// and returns the result.
+/// @param string The dynamic string to be concatenated.
+/// @param value The C-string to be concatenated.
+/// @return The result of concatenation of two strings.
+inline DynamicString operator+(const DynamicString& string, const char* value)
+{
+    DynamicString result(string.Length() + strlen(value));
+    result.Concatenate(string.Characters());
+    result.Concatenate(value);
+    return result;
+}
+
+/// @brief Plus operator that concatenates C-string and a dynamic string 
+/// and returns the result.
+/// @param string The dynamic string to be concatenated.
+/// @param value The C-string to be concatenated.
+/// @return The result of concatenation of two strings.
+inline DynamicString operator+(const char* value, const DynamicString& string)
+{
+    DynamicString result(string.Length() + strlen(value));
+    result.Concatenate(value);
+    result.Concatenate(string.Characters());
+    return result;
+}
+
+/// @brief Plus operator that concatenates two strings and returns the result.
+/// @param first The first string to be concatenated.
+/// @param second The second string to be concatenated.
+/// @return The result of concatenation of two strings.
+inline DynamicString operator+(const DynamicString& first, const DynamicString& second)
+{
+    DynamicString result(first.Length() + second.Length());
+    result.Concatenate(first.Characters());
+    result.Concatenate(second.Characters());
+    return result;
+}

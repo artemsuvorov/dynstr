@@ -34,6 +34,16 @@ TEST(DynstrConcatTest, ConcatWithEmptyString)
     EXPECT_EQ(string.Capacity(), 5);
 }
 
+TEST(DynstrConcatTest, ConcatWithNullptr)
+{
+    DynamicString string = "Hello";
+    string.Concatenate(nullptr);
+    
+    EXPECT_STREQ(string.Characters(), "Hello");
+    EXPECT_EQ(string.Length(), 5);
+    EXPECT_EQ(string.Capacity(), 5);
+}
+
 TEST(DynstrConcatTest, ConcatHelloWorld)
 {
     DynamicString string = "Hello,";

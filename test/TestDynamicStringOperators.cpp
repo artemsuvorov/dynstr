@@ -70,3 +70,33 @@ TEST(DynstrOperatorsTest, MoveAssignmentOperator_MoveSameData)
     EXPECT_EQ(apple1.Length(), 0);
     EXPECT_EQ(apple1.Capacity(), 0);
 }
+
+TEST(DynstrOperatorsTest, PlusOperator_OnDynamicStrings)
+{
+    DynamicString a = "aaa", b = "bbb";
+    DynamicString ab = a + b;
+    DynamicString ba = b + a;
+
+    EXPECT_STREQ(ab.Characters(), "aaabbb");
+    EXPECT_EQ(ab.Length(), 6);
+    EXPECT_EQ(ab.Capacity(), 6);
+
+    EXPECT_STREQ(ba.Characters(), "bbbaaa");
+    EXPECT_EQ(ba.Length(), 6);
+    EXPECT_EQ(ba.Capacity(), 6);
+}
+
+TEST(DynstrOperatorsTest, PlusOperator_OnConstChar)
+{
+    DynamicString letter = "a";
+    DynamicString fruit1 = letter + "pple";
+    DynamicString fruit2 = "banan" + letter;
+
+    EXPECT_STREQ(fruit1.Characters(), "apple");
+    EXPECT_EQ(fruit1.Length(), 5);
+    EXPECT_EQ(fruit1.Capacity(), 5);
+
+    EXPECT_STREQ(fruit2.Characters(), "banana");
+    EXPECT_EQ(fruit2.Length(), 6);
+    EXPECT_EQ(fruit2.Capacity(), 6);
+}
