@@ -170,7 +170,6 @@ private:
     void Reallocate(size_t newCapacity);
 
 private:
-    // TODO: mb make DefCap public and use it in tests ? upd readme also then
     static constexpr size_t DEFAULT_CAPACITY = 1;
     static constexpr size_t GROWTH_FACTOR = 2;
 
