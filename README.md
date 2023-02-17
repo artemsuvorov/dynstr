@@ -1,58 +1,54 @@
-# Динамические строки
+# Dynamic Strings
 
-dynstr -- небольшой проект, содержащий в себе реализацию класса динамических строк, состоящих из однобайтовых ASCII-символов и поддерживающих конкатенацию, вставку, модификацию и удаление подстрок или отдельных символов.
+dynstr is a small project containing an implementation of a class of dynamic strings that consist of single-byte ASCII characters and support concatenation, insertion, modification, and deletion of substrings or single characters.
 
-Динамические строки -- это изменяемые (mutable) строки, представленные одномерным массивом `char`, расположенным на куче (heap). Процесс выделения памяти (memory allocation) для строки инкапсулирован внутри класса: динамическая строка осуществляет автоматическое выделение и высвобождение блоков памяти по мере необходимости.
+Dynamic strings are mutable strings represented by a one-dimensional `char` array located on the heap. For a string, the memory allocation process is encapsulated within the dynamic string class: it automatically allocates and deallocates memory blocks as needed. 
 
-Сам класс динамических строк написан на стандарте версии C++11, хотя проект также содержит тесты, написанные при помощи библиотеки [`googletest`](https://github.com/google/googletest), требующей C++14. При помощи утилиты `CMake` программа и тесты могут быть скомпилированы и компилируются в исполняемые файлы с использованием необходимой версии C++. 
+The dynamic string class itself is written in the C++11 standart, although the project also contains tests written using the [`googletest`](https://github.com/google/googletest) library, which requires C++14. Via `CMake` utility, the program and tests can be compiled into executable files using the required version of C++.
 
-## Постановка задачи
+## Restrictions
 
-Класс динамических строк удовлетворяет следующим условиям:
+Dynamic strings class has the following features:
 
-1. Написан на C++11 без сторонних библиотек. Не использует в своей основе какую-либо другую реализацию динамических строк, контейнеров или умных указателей STL.
-2. Класс не шаблонный. Поддерживает строки произвольного размера, используя базовые операции работы с динамическим хипом (функции `malloc()`, `free()` или операторы `new`, `delete`) для манипуляции последовательностями символов типа `char`.
-3. Имеет конструктор копирования, оператор присваивания и поддерживает move-семантику. 
+1. It is written in C++11 without any third party libraries. Does not rely on any other implementation of dynamic strings, containers, or STL smart pointers at its core.
+2. Class is non-generic and doesn't use templates. Supports strings of arbitrary size using basic dynamic heap operations (`malloc()` and `free()` functions or `new` and `delete` opeartors) to manipulate sequences of `char` characters.
+3. Class has a copy constructor, an assignment operator, and supports move semantics. 
 
-У класса есть "внешний" оператор сложения двух строк.
+The dynamic strings class has a plus operator for adding (i.e. concatenating) two strings implemented outside of the main body of the class.
 
-Реализация не содержит в себе какие-то изощренные методы оптимизации (типа COW и многопоточной поддержки).
+The implementation on itself does not contain any sophisticated optimization methods (such as COW and multi-thread support).
 
-Пример написан с использованием этого класса динамических строк и какого-либо контейнера STL. Программа принимает список строк, затем выдает его в порядке, обратном лексикографическому без учета регистра.
+The example program in the main function is written using this dynamic string class and an STL container. The program takes a list of strings, then prints it out in reverse lexicographic order, case insensitive. The program works from the command line.
 
-Программа-пример работает из командной строки.
+## Implementation
 
-## Реализация
+Internally, the dynamic string class is a regular array of `char` characters of length `length` and capacity `capacity` associated with it. Basically, `length` is a length of the string, i.e. the number of characters it contains that come before the null-terminating character of `'\0'`, while the `capacity` describes the number of characters that can be inserted into the string before a new block of memory needs to be reallocated for a new array of `char` characters.
 
-Класс динамического массива изнутри представляет собой обычный массив `char`'ов длины `length` и вместимости `capacity`. Так, `length` -- это длина строки, т.е. количество входящих в нее символов без нуль-символа `'\0'`, тогда как вместимости `capacity` -- это количество символов, которые можно вставить в строку, прежде чем потребуется реаллокация нового блока памяти для миссива `char`'ов.
+For example, if an initially empty string has a capacity of 3, then exactly 3 characters could be fit into it. Adding the 4th character using the `Add('...')` method will entail the reallocation of a new block of memory 2 times longer, into which all the characters of the string will be copied and a new 4th one will be added to. At the same time, when calling `Concatenate("...")`, the capacity grows exactly by as many characters as the additional string length (if the length of the latter is greater than the current capacity).
 
-Например, если изначально пустая строка имеет вместимость `capacity`, равную трём, то в нее влезет ровно 3 символа. Добавление же 4-го символа при помощи метода `Add('...')` повлечет за собой реаллокацию и выделение нового блока памяти в 2 раза большей длины, в который будут скопированы все символы строки и добавлен новый 4-ый. При этом при вызове про `Concatenate("...")` вместительность растет ровно на столько символов, сколько  потребуется для вмещения добавляемой строки (если ее длина больше текущей вместительности).
+### Properties
 
-### Свойства
-
-| Тип         | Свойство     | Описание   |
+| Type        | Property     | Description   |
 |:------------|:-------------|:-----------|
-| const char* | Characters() | Возвращает последовательность `char`'ов, из которой состоит динамическая строка |
-| uint32_t    | Length() | Возвращает длину `length` динамической строки |
-| uint32_t    | Capacity() | Возвращает вместимость `capacity` динамической строки |
+| `const char*` | `Characters()` | Returns the sequence of characters that the dynamic string contains |
+| `uint32_t`    | `Length()` | Returns the length of the dynamic string |
+| `uint32_t`    | `Capacity()` | Returns the capacity of the dynamic string |
 
-### Методы
+### Methods
 
-| Сигнатура метода | Описание |
+| Method signature | Description |
 |:-----------------|:---------|
-| `void Add(char character)` | Добавляет один указанный символ `character` в конец строки |
-| `void Concatenate(const char* value)` | Добавляет последовательность символов `value` в конец строки |
-| `void Insert(size_t index, char character)` | Вставляет один символ `character` на указанную позицию `index` внутри динамической строки |
-| `void Remove(size_t index)` | Удаляет символ по указанному индексу `index` внутри динамической строки. |
-| `size_t Reserve(size_t newCapacity)` | Устанавливает указанное значение `newCapacity` в качестве новой вместимости динамической строки |
-| `void Clear()` | Очищает динамическую строку, делая ее пустой |
-| `bool Equals(const DynamicString& other)` | Проверяет, равна ли данная динамическая строка строке `other`. Метод также имеет перегрузку для последовательности `const char*` |
+| `void Add(char character)` | Add one specified character to the end of the dynamic string |
+| `void Concatenate(const char* value)` | Add the specified sequence of characters to the end of the dynamic string |
+| `void Insert(size_t index, char character)` | Inserts one character at the specified position within the dynamic string |
+| `void Remove(size_t index)` | Removes one character at the specified position within the dynamic string |
+| `size_t Reserve(size_t newCapacity)` | Sets the new capacity in characters for the dynamic string to accommodate |
+| `void Clear()` | Clears a dynamic string, making it empty |
+| `bool Equals(const DynamicString& other)` | Checks if the dynamic string is equal to another one. This method also has an overload for `const char*` value |
 
-Помимо всего прочего, в классе динамических строк реализованы операторы присваивания, сравнения, сложения, взятия символа по индексу и ввода, вывода из потока, а также в классе присутствуют методы `begin()` и `end()`, позволяющие получить итератор динамической строки.
+### Example
 
-### Пример
-
-Следующий пример иллюстрирует использование динамических строк с использованием STL контейнера `vector`.
+The following example illustrates the use of dynamic strings using the container `vector` from the STL library:
 
 ```cpp
 int main()
@@ -76,23 +72,23 @@ int main()
 }
 ```
 
-В этом примере мы последовательно считываем строки из потока ввода и складываем их в общий список `strings` до тех пор, пока не встретим пустую строку. При этом не происходит никаких копирований объектов строк, так как класс поддерживает mode-семантику. После мы сортируем полученный список с помощью имплементированного итератора для динамических строк в обратном лексикографическом порядке без учета регистра символов.
+In this example, we sequentially read lines from the input stream and add them to the `strings` list until we encounter an empty string. In this case, no copying of string objects occurs, since the class supports move semantics. After that, we sort the resulting list using the implemented iterator for dynamic strings in reverse lexicographic order, case insensitive.
 
-Таким образом, для данного набора введенных в терминале строк:
+Thus, for a given set of lines entered in the terminal:
 
 ```sh
 { "a", "B", "c", "D" }
 ```
 
-программа напечатает их в следующем порядке вывода:
+the program will print them in the following output order:
 
 ```sh
 { "D", "c", "B", "a" }
 ```
 
-## Запуск
+## Quick Start
 
-Убедитесь, что репозиторий проекта был склонирован с флагом `--recursive`, чтобы дополнительно склонировать библиотеку `googletest`, добавленную в проект как подмодуль. Сама реализация класса динамических строк ни от каких библиотек не зависит, поэтому, вообще говоря, он может быть скомпилирован и обособленно. Сборка проекта может быть создана, а проект скомпилирован в исполняемый файл при помощи утилиты `CMake`. Для Windows также может потребоваться инструмент разработки `MinGW`.
+Make sure the project repository has been cloned with the `--recursive` flag to additionally clone the `googletest` library added to the project as a submodule. The implementation of the dynamic string class itself does not depend on any libraries, therefore, generally speaking, it can be compiled separately. The project can be built and compiled into an executable file using `CMake`. For Windows, the `MinGW` development tool may also be required.
 
 ### Unix
 ```sh
@@ -107,25 +103,25 @@ cmake -S . -B build -G "MinGW Makefiles"
 mingw32-make -C build
 ``` 
 
-В результате в директории `bin` будут находиться два исполняемых файла для самой скомпилированной программы и тестов: 
+Аfter that, the `bin/` directory will contain two executable files for the compiled program itself and the runnable tests:
 
 ```tree
 bin/
-|-- dynstr.exe       # Программа
-`-- test-dynstr.exe  # Тесты
+|-- dynstr.exe       # Example program
+`-- test-dynstr.exe  # Tests
 ```
 
-## Тестирование
+## Tests
 
-Программа содержит тесты, написанные при помощи библиотеки [`googletest`](https://github.com/google/googletest). Все необходимые зависимости подключены при сборке с помощью `CMake`.
+The project also contains tests written via the [`googletest`](https://github.com/google/googletest) library. All necessary dependencies are included when building with `CMake`.
 
-### Пример
+### Example
 
-Написанные в проеке юнит-тесты одновременно представляют актуальную документацию к классу динамических строк. Так, в одном из тестов декларируются следующие требования к пустой строке, получаемой при инициализации без параметров:
+The unit tests written in the project simultaneously provide up-to-date documentation for the dynamic string class. For instance, in one of the tests, the following requirements are declared for an empty string that can be instantiated using the parameter-less constructor:
 
-1. Массив `char`'ов совпадает с литералом пустой строки `""`;
-2. Длина строки равна `0`;
-3. Вместимость строки по умолчанию равна `1`. (подробнее о вместимости см. Реализация)
+1. The underlying array of characters is equal to an empty string literal `""`;
+2. The dynamic string length is `0`;
+3. The default dynamic string capacity is `1` (see Implementation for more details on the capacity).
 
 ```cpp
 #include <gtest/gtest.h>
@@ -141,9 +137,9 @@ TEST(DynstrTest, IsEmptyOnInit)
 }
 ```
 
-Следующий пример юнит-теста осуществляет проверку того факта, что строка умеет динамически выделять для себя память, увеличивая значение своей вместимости `capacity`.
+The next unit test example checks that the dynamic string can dynamically allocate memory for itself by increasing its capacity.
 
-Вначале создается пустая динамическая строка длины `0` и замеряется ее текущая вместимость (по умолчанию она равна `1`, как того требует юнит-тест выше). Затем в строку последовательно добавляют два символа: при вместимости, равной единице, первый в нее влезает, тогда как второй уже потребует выделить новый блок памяти (в 2 раза больший предыдущего). Таким образом, тест ожидает получить новую вместимость, которая была бы больше изначальной и равнялась `2`. 
+First, an empty dynamic string of length `0` is created and its current capacity is stored to a variable (by default it is `1`, as required by the unit test above). Then two characters are sequentially added to the string: with a capacity equal to one, the first one fits into it, while the second will require a new memory block (2 times larger than the previous one) to be allocated. Thus, the test expects to receive a new capacity that would be greater than the original one and equal to `2`.
 
 ```cpp
 TEST(DynstrTest, ReallocatesMemory)
@@ -163,9 +159,9 @@ TEST(DynstrTest, ReallocatesMemory)
 }
 ```
 
-### Запуск
+### Launch
 
-Чтобы запустить все юнит-тесты из директории `test`, достаточно скомпилировать проект и исполнить запускаемый файл:
+To run all unit tests from the `test` directory, just compile the program and execute the `test-dynstr.exe` file:
 
 ```sh
 ./bin/test-dynstr.exe
